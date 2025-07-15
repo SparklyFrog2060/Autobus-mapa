@@ -1,0 +1,108 @@
+<!DOCTYPE html>
+<html lang="pl">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Mapa Autobusu</title>
+  <style>
+    body {
+      margin: 0;
+      font-family: sans-serif;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      height: 100vh;
+      background: #f0f0f0;
+    }
+    h1 {
+      font-size: 1.5rem;
+      margin: 10px;
+    }
+    #mapa {
+      position: relative;
+      width: 500px;
+      height: 500px;
+      background: url('mapa.png') no-repeat center center;
+      background-size: cover;
+      border: 2px solid #000;
+    }
+    #autobus {
+      position: absolute;
+      width: 20px;
+      height: 20px;
+      background: radial-gradient(circle, red 40%, yellow 60%);
+      border-radius: 50%;
+      transform: translate(-50%, -50%);
+      transition: left 1s linear, top 1s linear;
+    }
+  </style>
+</head>
+<body>
+  <h1>Aktualna pozycja autobusu</h1>
+  <div id="mapa">
+    <div id="autobus"></div>
+  </div>
+
+  <script>
+    const punkty = {
+      0: { x: 487, y: 487 },
+      10: { x: 480, y: 245 },
+      12: { x: 340, y: 225 },
+      20: { x: 337, y: 23 },
+      24: { x: 155, y: 30 },
+      26: { x: 140, y: 95 },
+      28: { x: 75, y: 150 },
+      34: { x: 70, y: 250 },
+      40: { x: 230, y: 270 },
+      42: { x: 410, y: 265 },
+      52: { x: 487, y: 487 }
+    };
+
+    const pelnaTrasa = {};
+    const czasy = Object.keys(punkty).map(Number);
+
+    for (let i = 0; i < czasy.length - 1; i++) {
+      const t1 = czasy[i], t2 = czasy[i + 1];
+      const p1 = punkty[t1], p2 = punkty[t2];
+      for (let t = t1; t <= t2; t++) {
+        const alpha = (t - t1) / (t2 - t1);
+        const x = Math.round(p1.x + (p2.x - p1.x) * alpha);
+        const y = Math.round(p1.y + (p2.y - p1.y) * alpha);
+        pelnaTrasa[t] = { x, y };
+      }
+    }
+
+    function znajdzNajblizszyStart() {
+      const teraz = new Date();
+      const min = teraz.getMinutes();
+      const sek = teraz.getSeconds();
+      const dodajMinuty = (min % 2 === 0 && sek < 60) ? 0 : (2 - min % 2);
+      return new Date(
+        teraz.getFullYear(), teraz.getMonth(), teraz.getDate(),
+        teraz.getHours(), min + dodajMinuty, 0, 0
+      ).getTime();
+    }
+
+    const autobus = document.getElementById("autobus");
+    let startCzas = znajdzNajblizszyStart();
+
+    setInterval(() => {
+      const teraz = Date.now();
+      const uplynelo = Math.floor((teraz - startCzas) / 1000);
+
+      if (uplynelo < 0) return; // jeszcze nie ruszył
+      if (uplynelo > 52) {
+        startCzas = znajdzNajblizszyStart();
+        return;
+      }
+
+      const pos = pelnaTrasa[uplynelo];
+      if (pos) {
+        autobus.style.left = pos.x + 'px';
+        autobus.style.top = pos.y + 'px';
+      }
+    }, 1000);
+  </script>
+</body>
+</html>
