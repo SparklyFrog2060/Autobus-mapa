@@ -5,32 +5,41 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Mapa Autobusu</title>
   <style>
-    body {
+    html, body {
       margin: 0;
+      padding: 0;
+      width: 100%;
+      height: 100%;
       font-family: sans-serif;
+      background: #f0f0f0;
+    }
+    #container {
+      width: 100vw;
+      height: 100vh;
       display: flex;
       flex-direction: column;
       align-items: center;
       justify-content: center;
-      height: 100vh;
-      background: #f0f0f0;
     }
     h1 {
       font-size: 1.5rem;
       margin: 10px;
+      text-align: center;
     }
     #mapa {
       position: relative;
-      width: 500px;
-      height: 500px;
+      width: 90vmin;
+      height: 90vmin;
+      max-width: 100%;
+      max-height: 100%;
       background: url('mapa.png') no-repeat center center;
       background-size: cover;
       border: 2px solid #000;
     }
     #autobus {
       position: absolute;
-      width: 20px;
-      height: 20px;
+      width: 7vmin;
+      height: 7vmin;
       background: radial-gradient(circle, red 40%, yellow 60%);
       border-radius: 50%;
       transform: translate(-50%, -50%);
@@ -39,9 +48,11 @@
   </style>
 </head>
 <body>
-  <h1>Aktualna pozycja autobusu</h1>
-  <div id="mapa">
-    <div id="autobus"></div>
+  <div id="container">
+    <h1>Aktualna pozycja autobusu</h1>
+    <div id="mapa">
+      <div id="autobus"></div>
+    </div>
   </div>
 
   <script>
@@ -91,7 +102,7 @@
       const teraz = Date.now();
       const uplynelo = Math.floor((teraz - startCzas) / 1000);
 
-      if (uplynelo < 0) return; // jeszcze nie ruszył
+      if (uplynelo < 0) return;
       if (uplynelo > 52) {
         startCzas = znajdzNajblizszyStart();
         return;
@@ -99,8 +110,10 @@
 
       const pos = pelnaTrasa[uplynelo];
       if (pos) {
-        autobus.style.left = pos.x + 'px';
-        autobus.style.top = pos.y + 'px';
+        const xPerc = pos.x / 500 * 100;
+        const yPerc = pos.y / 500 * 100;
+        autobus.style.left = xPerc + '%';
+        autobus.style.top = yPerc + '%';
       }
     }, 1000);
   </script>
